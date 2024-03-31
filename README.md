@@ -8,7 +8,7 @@ npx create-next-app
 
 - Routing: folderName/page.tsx -> domain.com/folderName, folderName/folderInside/page.tsx ->domain.com/folderName/folderInside
 
-- A/Link tag: [a](https://prnt.sc/cH21_fHoqS5q) [Link](https://prnt.sc/jmR5Epp64fe9)
+- A/Link tag: [A](https://prnt.sc/cH21_fHoqS5q) [Link](https://prnt.sc/jmR5Epp64fe9)
 
 ### Client and Server component
 
@@ -127,28 +127,86 @@ const res = await fetch("https://jsonplaceholder.typicode.com/users", {
 });
 ```
 
-### -
+## Styling Next.js Applications
 
-```jsx
+1. Global styles (app/globals.css)
+2. CSS modules
+3. Tailwind CSS
+4. Daisy UI (Bootstrap of Tailwind)
 
+### - Global styles
+
+- Styles to apply to all pages. h1, p,
+- Can not use .user-list
+
+### - CSS Modules
+
+- As React
+- CSS modules you can not use game-card need to use gameCard because it is not valid identifier
+
+### - Tailwind CSS
+
+- Class that are used will be included in bundel
+- Job Scope huge
+
+### - Daisy UI
+
+```bash
+npm i -D daisyui@latest
 ```
 
-### -
+Then add daisyUI to your tailwind.config.js files:
 
 ```jsx
+module.exports = {
+  //...
+  plugins: [require("daisyui")],
+  daisyui: {
+    themes: ["winter"], // if you want to use theme
+  },
+};
 
-```
+// layout.tsx
+<html lang="en" data-theme="winter"> // winter theme used
 
-### -
+// AddtoCart.tsx
+<button className="btn btn-primary">Primary</button>
 
-```jsx
+// users/page.tabs-tsx
+import React from "react";
 
-```
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
 
-### -
+const UserPage = async () => {
+  const res = await fetch("https://jsonplaceholder.typicode.com/users");
+  const users: User[] = await res.json();
 
-```jsx
-
+  return (
+    <>
+      <h1>Users</h1>
+      <table className="table table-bordered">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user) => (
+            <tr key={user.id}>
+              <td>{user.name}</td>
+              <td>{user.email}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  );
+};
 ```
 
 ### -
