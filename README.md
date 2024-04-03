@@ -628,28 +628,213 @@ const ErrorPage = ({ error, reset }: Props) => {
 };
 ```
 
-### -
+## CH-4: Building API's (Create API endpoint and Validate with Zod) Introduction to full stack
+
+### - Getting a collection of Objects
+
+- Create folder api/users. api is not necessary but well followed convention
+- Create route.tsx in this folder. In a folder we can create either route.tsx or page.tsx but not both.
+- To show someting as markup we use page.tsx, to handel http request we should use route.tsx
+- In route.tsx we can use one or more route handeler. Is a function that handel a http request. ie. GET, POST, PUT, DELETE
 
 ```jsx
+// GET - NextRequest, NextResponse is two key
+import { NextRequest, NextResponse } from "next/server";
 
+export function GET(request: NextRequest) {
+  return NextResponse.json([
+    { id: 1, name: "Mosh" },
+    { id: 2, name: "Subroto" },
+  ]);
+}
 ```
 
-### -
-
 ```jsx
+// http://localhost:3000/api/users
+// app/api/user/route.tsx
+// GET Route handeler
+import { NextRequest, NextResponse } from "next/server";
 
+// GET - all user
+export function GET(request: NextRequest) {
+  return NextResponse.json([
+    { id: 1, name: "Mosh" },
+    { id: 2, name: "Subroto" },
+  ]);
+}
+
+// POST - Create user
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  // Validate
+  if (!body.name) {
+    return NextResponse.json({ error: "Name is required." }, { status: 400 });
+  }
+  return NextResponse.json({ id: 1, name: body.name }, { status: 201 });
+}
+
+// http://localhost:3000/api/users/1
+// app/api/user/[id]/route.tsx single user (Receving id is same as page.tsx)
+import { NextRequest, NextResponse } from "next/server";
+
+interface Props {
+  params: { id: number };
+}
+
+// GET all
+export function GET(request: NextRequest, { params: { id } }: Props) {
+  if (id > 10) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ id: 1, name: "Mosh" });
+}
+
+// PUT
+export async function PUT(request: NextRequest, { params: { id } }: Props) {
+  const body = await request.json();
+  // S1: Validate the request body,  If invalide, return 400
+  if (!body.name) {
+    return NextResponse.json({ error: "Name is required." }, { status: 400 });
+  }
+  // S2: Fetch the user with the given id,  If doesn't exist, return 404
+  if (id > 10) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+  // S3: Update the user,  Return the updated user
+
+  return NextResponse.json({ id: id, name: body.name });
+}
+
+// Delete
+export async function DELETE(request: NextRequest, { params: { id } }: Props) {
+  const body = await request.json();
+  if (id > 10) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({});
+}
 ```
 
-### -
+### - Validating Requests with Zod (api/users/schema.ts)
 
-```jsx
-
+```bash
+npm i zod
 ```
 
-### -
+```jsx
+// schema.ts
+import { z } from "zod";
+// z.object({
+//   name: z.string().min(3),
+//   email: z.string().email(),
+//   age: z.number(),
+// });
+const schema = z.object({
+  name: z.string().min(3),
+});
+
+// users/route.tsx
+// POST - Create user
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  const validation = schema.safeParse(body);
+  // Validate
+  if (!validation.success) {
+    return NextResponse.json(validation.error.errors, { status: 400 });
+  }
+  return NextResponse.json({ id: 1, name: body.name }, { status: 201 });
+}
+
+// users/[id]/route.tsx
+// PUT
+export async function PUT(request: NextRequest, { params: { id } }: Props) {
+  const body = await request.json();
+  const validation = schema.safeParse(body);
+  // Validation using Zod
+  if (!validation.success) {
+    return NextResponse.json(validation.error.errors, { status: 400 });
+  }
+
+  return NextResponse.json({ id: id, name: body.name });
+}
+```
+
+### - Building Products API (app/api/products)
 
 ```jsx
+// schema.ts
+import { z } from "zod";
 
+const schema = z.object({
+  name: z.string().min(3),
+  price: z.number().min(1).max(100),
+});
+
+// products/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import schema from "./schema";
+
+// GET - Getting all Product
+export function GET(request: NextRequest) {
+  return NextResponse.json([
+    { id: 1, name: "Milk", price: 2.5 },
+    { id: 2, name: "Bread", price: 3.5 },
+  ]);
+}
+
+// POST - Create Product
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  const validation = schema.safeParse(body);
+  if (!validation.success)
+    return NextResponse.json(validation.error.errors, { status: 404 });
+
+  return NextResponse.json({ id: 1, ...body });
+}
+
+// products/[id]/route.tsx
+import { NextRequest, NextResponse } from "next/server";
+import schema from "../schema";
+
+// GET - id
+export function GET(
+  request: NextRequest,
+  { params }: { params: { id: number } }
+) {
+  if (params.id > 10) return NextResponse.json({ error: "User not found" });
+  return NextResponse.json({ id: 1, name: "Milk", price: 5.5 });
+}
+
+// PUT - id
+export function PUT(
+  request: NextRequest,
+  { params }: { params: { id: number } }
+) {
+  const body = request.json();
+  const validation = schema.safeParse(body);
+
+  if (!validation.success) {
+    return NextResponse.json(validation.error.errors, { status: 400 });
+  }
+
+  if (params.id > 10)
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+  return NextResponse.json({ id: 1, ...body });
+}
+
+// DELETE - id
+export function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: number } }
+) {
+  if (params.id > 10)
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+  return NextResponse.json({});
+}
 ```
 
 ### -
