@@ -739,7 +739,7 @@ const schema = z.object({
 // POST - Create user
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const validation = schema.safeParse(body);
+  const validation = schema.safeParse(body); // zod validation
   // Validate
   if (!validation.success) {
     return NextResponse.json(validation.error.errors, { status: 400 });
@@ -751,7 +751,7 @@ export async function POST(request: NextRequest) {
 // PUT
 export async function PUT(request: NextRequest, { params: { id } }: Props) {
   const body = await request.json();
-  const validation = schema.safeParse(body);
+  const validation = schema.safeParse(body); // zod validation
   // Validation using Zod
   if (!validation.success) {
     return NextResponse.json(validation.error.errors, { status: 400 });
@@ -837,76 +837,304 @@ export function DELETE(
 }
 ```
 
-### -
+## Ch-5: Database Integration ( Prisma )
 
-```jsx
+- ORM is a tool that sit between our Application and Database
 
+### - Setting up Prisma
+
+```bash
+npm i prisma
 ```
 
-### -
+To get prisma command "npx"
 
-```jsx
-
+```bash
+npx prisma
 ```
 
-### -
+Set up prisma. https://prnt.sc/r_gkmq2vlYmX
 
-```jsx
-
+```bash
+npm prisma init
 ```
 
-### -
+.env file [Connection String Format](https://prnt.sc/Z1H-zDfYb5b1) For MySql Database
 
 ```jsx
-
+DATABASE_URL = "mysql://root:@localhost:3306/nextjs";
 ```
 
-### -
-
-```jsx
+Add .env to .gitignore
 
 ```
-
-### -
-
-```jsx
-
+# local env files
+.env
 ```
 
-### -
+Now in prisma/schema.prisma (datasource>provider to mysql)
 
 ```jsx
-
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
 ```
 
-### -
+Setup is done.<br >
+Database opeartion:
+Then create model
 
 ```jsx
-
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  name         String
+  followers    Int      @default(0)
+  isActive     Boolean  @default(true)
+  registeredAt DateTime @default(now())
+}
 ```
 
-### -
+Format schema & Run migration in command line. A database table will be created. To add another column add this column to user model and again run this two command or only 'npx prisma migrate dev'. 'npx prisma format' only for schema butifully formated
 
-```jsx
-
+```bash
+npx prisma format
+npx prisma migrate dev
 ```
 
-### -
+### - Creating Prisma Client (prisma/client.ts) - One time work
 
 ```jsx
-
+// prisma/client.ts
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+export default prisma;
 ```
 
-### -
+- More accurate and use global space. It is smart version of upper code. Use this one. [Next JS Prisma CLient](https://www.prisma.io/docs/orm/more/help-and-troubleshooting/help-articles/nextjs-prisma-client-dev-practices)
+- Don't worry about this code. Just copy and paste and you only need to do it once and never comeback again.
 
 ```jsx
+// prisma/client.ts | Just copy and past (ignore upper and just use this piece of code for better performance)
+import { PrismaClient } from "@prisma/client";
 
+const prismaClientSingleton = () => {
+  return new PrismaClient();
+};
+
+declare global {
+  var prismaGlobal: undefined | ReturnType<typeof prismaClientSingleton>;
+}
+
+const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
+
+export default prisma;
+
+if (process.env.NODE_ENV !== "production") globalThis.prismaGlobal = prisma;
 ```
 
-### -
+### - Getting Data (route.tsx | Same code only fetch)
 
 ```jsx
+// api/users/route.tsx
+import prisma from "@/prisma/client";
+// GET - all user
+export async function GET(request: NextRequest) {
+  const users = await prisma.user.findMany();
+  return NextResponse.json(users);
+}
 
+// api/users/[id]/route.tsx ( Here url id always sting. Then use parseInt(id))
+import prisma from "@/prisma/client";
+
+interface Props {
+  params: { id: string }; // here url id always sting. Then use parseInt(id)
+}
+
+// GET - ID
+export async function GET(request: NextRequest, { params: { id } }: Props) {
+  const user = await prisma.user.findUnique({
+    where: { id: parseInt(id) },
+  });
+
+  if (!user)
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+  return NextResponse.json(user);
+}
+```
+
+### - Creating data (users/route.tsx)
+
+```jsx
+// users/route.tsx
+import prisma from "@/prisma/client";
+
+// POST - Create user
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  const validation = schema.safeParse(body);
+
+  // Validate
+  if (!validation.success) {
+    return NextResponse.json(validation.error.errors, { status: 400 });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: body.email },
+  });
+
+  if (user)
+    // Check email is exist or not
+    return NextResponse.json(
+      { error: "Email already exists" },
+      { status: 400 }
+    );
+
+  // const user = await prisma.user.create({ // This also work but have security risk
+  //   data: body,
+  // });
+
+  const newUser = await prisma.user.create({
+    data: {
+      name: body.name,
+      email: body.email,
+    },
+  });
+
+  return NextResponse.json(newUser, { status: 201 });
+}
+```
+
+### - Updating Data
+
+```jsx
+// PUT - ID & {body}
+export async function PUT(request: NextRequest, { params: { id } }: Props) {
+  const body = await request.json();
+  const validation = schema.safeParse(body);
+
+  // S1: Validate the request body,  If invalide, return 400
+  if (!validation.success) {
+    return NextResponse.json(validation.error.errors, { status: 400 });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: parseInt(id) },
+  });
+
+  // S2: Fetch the user with the given id,  If doesn't exist, return 404
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: { id: user.id }, // user object fetch using prisma
+    data: {
+      name: body.name,
+      email: body.email,
+    },
+  });
+
+  // S3: Update the user,  Return the updated user
+  return NextResponse.json(updatedUser);
+}
+```
+
+### - Deleting Data
+
+```jsx
+// DELETE - Id
+export async function DELETE(request: NextRequest, { params: { id } }: Props) {
+  const body = await request.json();
+
+  const user = await prisma.user.findUnique({
+    where: { id: parseInt(id) },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  await prisma.user.delete({
+    where: { id: user.id },
+  });
+
+  return NextResponse.json({});
+}
+```
+
+### Product API Practice
+
+**Database operation for new model**<br>
+Step1: Create model
+
+```jsx
+model User {
+  id Int @id @default(autoincrement())
+  email String @unique
+  name String
+  followers Int @default(0)
+  isActive Boolean @default(true)
+  registeredAt DateTime @default(now())
+}
+```
+
+Step2: Create zod based validation Schema
+
+```jsx
+// products/schema.ts
+import { z } from "zod";
+
+const schema = z.object({
+  name: z.string().min(3),
+  price: z.number().min(1).max(100),
+});
+
+export default schema;
+```
+
+Step3: Run in Terminal
+
+```bash
+npx prisma format
+npx prisma migrate dev
+```
+
+NB: const body = await request.json() | Must use await here <br >
+Step4: Run db opration
+
+```jsx
+// Read All Record
+const products = await prisma.product.findMany();
+
+// Read One Row
+const product = await prisma.product.findUnique({
+  where: { id: parseInt(params.id) },
+});
+
+// Create record
+const newProduct = await prisma.product.create({
+  data: {
+    name: body.name,
+    price: body.price,
+  },
+});
+
+// Update
+const updatedProduct = await prisma.product.update({
+  where: { id: product.id },
+  data: {
+    name: body.name,
+    price: body.price,
+  },
+});
+
+// Delete
+await prisma.product.delete({
+  where: { id: parseInt(params.id) },
+});
 ```
 
 ### -
