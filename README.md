@@ -1137,25 +1137,74 @@ await prisma.product.delete({
 });
 ```
 
-### -
+## Ch-6: Uploading Files
 
-```jsx
+**To store files that user upload we have to use:**<br>
+**Cloude Platform: Amazon S3, Google Cloud, Microsoft Azure, Cloudinary**<br>
+Step1: Create free account on cloudinary.com give you actual space to upload files<br>
+Step2: [Installation & Use](https://next.cloudinary.dev/installation) provides Next Components and API for using cloudinary.com
 
+```bash
+npm install next-cloudinary
 ```
 
-### -
+Step3: .env file - [Click](https://prnt.sc/OsdzukL0CawQ)
 
 ```jsx
-
+// .env
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME = "dvkrnqxac"; // environment name from console.cloudinary.com, https://prnt.sc/OsdzukL0CawQ
 ```
 
-### -
+Step4: From next.cloudinary.dev, use this two component < CldUploadWidget: to upload> < CldImage: to display > <br>
+To get uploadPreset="ylz6b7tw", [Cloudinary](https://console.cloudinary.com/) > Setting > Upload(Click) > Upload presets (Scroll on right) https://prnt.sc/i3hKv9vv-lU- <br>
+Go to 'Media Library' to see the uplaod media on Cloudinary.
 
 ```jsx
+// app/upload/page.tsx
+"use client";
+import React, { useState } from "react";
+import { CldUploadWidget, CldImage } from "next-cloudinary";
 
+interface CoudinaryResult {
+  public_id: string;
+}
+
+const UploadPage = () => {
+  const [publicId, setPublictId] = useState("");
+
+  return (
+    <>
+      {publicId && (
+        <CldImage src={publicId} width={270} height={180} alt="My Image" />
+      )} // to Display Image
+      <CldUploadWidget  // To Upload image
+        uploadPreset="ylz6b7tw"
+        options={{ // to customized uploading UI
+          sources: ["local"],
+          multiple: false,
+          maxFiles: 5,
+          styles: {},
+        }}
+        onSuccess={(result, { widget }) => {
+          console.log(result);
+          if (result.event !== "success") return; // see how should be code
+          const info = result.info as CoudinaryResult; // Create interface here because result.info is not properly typed
+          setPublictId(info.public_id);
+        }}
+      >
+        {({ open }) => (
+          <button className="btn btn-primary" onClick={() => open()}>
+            Upload C
+          </button>
+        )}
+      </CldUploadWidget>
+    </>
+  );
+};
 ```
 
-### -
+NB: onUpload is depricated, onSuccess same as onUpload: truggered after upload
+Step6: Customized upload widget [Click](https://demo.cloudinary.com/uw)
 
 ```jsx
 
