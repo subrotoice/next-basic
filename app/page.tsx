@@ -1,12 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import ProductCard from "./components/ProductCard";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]/route";
 
-export default function Home() {
+export default async function Home() {
+  const session = await getServerSession(authOptions);
+
   return (
     <main>
+      <h1>Hello {session && <>{session.user?.name}</>}</h1>
       <Link href="users">User</Link>
-      <a href="users/new">New User</a>
       <ProductCard />
     </main>
   );
