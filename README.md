@@ -1573,6 +1573,244 @@ export async function POST(request: NextRequest) {
 }
 ```
 
+## Ch-8: Sending Emails
+
+- Setting Up React Email
+- Creating an Email Template
+- Previewing Emails
+- Styling Emails
+- Sending Emails
+
+### - Setting Up React Email [react.email](https://react.email)
+
+- Gives some component for creating HTML emails and Preview those emails
+
+```bash
+npm i react-email @react-email/components
+```
+
+package.json add: "preview-email": "email dev -p 3030"
+
+```jsx
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "preview-email": "email dev -p 3030"
+  },
+
+```
+
+### - Creating an Email Template (emails folder)
+
+```jsx
+// emails/WelcomeTemplate.tsx (it is not in app folder in root folder)
+import React from "react";
+import {
+  Html,
+  Body,
+  Container,
+  Text,
+  Link,
+  Preview,
+} from "@react-email/components";
+
+const WelcomeTemplate = ({ name }: { name: string }) => {
+  return (
+    <Html>
+      <Preview>Welcome Aboard!</Preview>
+      <Body>
+        <Container>
+          <Text>Hello {name}</Text>
+          <Link href="https://www.google.com">www.google.com</Link>
+        </Container>
+      </Body>
+    </Html>
+  );
+};
+```
+
+### - Previewing Emails
+
+Add this line in .gitignore ('/' at the end)
+
+```jsx
+.react-email/
+```
+
+At this point, you can send email from localhost. [Click Here](https://prnt.sc/0hCBhg0MKfXl)
+
+```bash
+npm run preview-email
+```
+
+### - Styleing Emails
+
+```jsx
+// emails/WelcomeTemplate.tsx
+// System 1: Inline Css (Pass an object)
+<Body style={{ background: "#101010" }}>
+  <Container>
+    <Text>Hello {name}</Text>
+    <Link href="https://www.google.com">www.google.com</Link>
+  </Container>
+</Body>;
+
+// System 2: Style object; Outside the markup, CSSProperties one for intellesense
+
+const WelcomeTemplate = ({ name }: { name: string }) => {
+  return (
+    <Html>
+      <Preview>Welcome Aboard!</Preview>
+      <Body style={body}>
+        <Container>
+          <Text style={heading}>Hello {name}</Text>
+          <Link href="https://www.google.com">www.google.com</Link>
+        </Container>
+      </Body>
+    </Html>
+  );
+};
+
+const body: CSSProperties = {
+  // CSSProperties for auto complete only
+  background: "#fff",
+};
+
+const heading: CSSProperties = {
+  fontSize: "32px",
+};
+
+export default WelcomeTemplate;
+
+// System 3: Tailwind (Import Tailwind) use any class of tailwind with className
+import React, { CSSProperties } from "react";
+import {
+  Html,
+  Body,
+  Container,
+  Tailwind,
+  Text,
+  Link,
+  Preview,
+} from "@react-email/components";
+
+const WelcomeTemplate = ({ name }: { name: string }) => {
+  return (
+    <Html>
+      <Preview>Welcome Aboard!</Preview>
+      <Tailwind>
+        <Body className="bg-white">
+          <Container>
+            <Text className="font-bold text-4xl text-red-400">
+              Hello {name}
+            </Text>
+            <Link href="https://www.google.com">www.google.com</Link>
+          </Container>
+        </Body>
+      </Tailwind>
+    </Html>
+  );
+};
+```
+
+### - Sending Emails
+
+```bash
+npm install resend
+```
+
+[resend.com](https://resend.com/overview) <br >
+.env file<br>
+RESEND_API_KEY= and Paste it <br>
+Here create an api through which we can send email
+[API ENDPOINT](http://localhost:3000/api/send-email)
+
+```jsx
+// /app/api/send-email/route.ts (WelcomeTemplate as function and Props as object)
+import { NextRequest, NextResponse } from "next/server";
+import { Resend } from "resend";
+import WelcomeTemplate from "@/emails/WelcomeTemplate";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+
+  const data = await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: body.email,
+    subject: "Hello World 34" + body.name,
+    react: WelcomeTemplate({ name: body.name }),
+  });
+
+  if (!data) return NextResponse.json({ error: "Error Sending email" });
+
+  return NextResponse.json(data);
+}
+```
+
+### -
+
+```jsx
+
+```
+
+### -
+
+```jsx
+
+```
+
+### -
+
+```jsx
+
+```
+
+### -
+
+```jsx
+
+```
+
+### -
+
+```jsx
+
+```
+
+### -
+
+```jsx
+
+```
+
+### -
+
+```jsx
+
+```
+
+### -
+
+```jsx
+
+```
+
+### -
+
+```jsx
+
+```
+
+### -
+
+```jsx
+
+```
+
 ### -
 
 ```jsx
