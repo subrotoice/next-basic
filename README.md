@@ -1,3 +1,16 @@
+# Next.js Chapters
+
+[Ch-1: Next JS Basic](https://github.com/subrotoice/next-basic?tab=readme-ov-file#ch-1-next-js-basic)<br>
+[Ch-2: Styling Next.js Applications](https://github.com/subrotoice/next-basic?tab=readme-ov-file#ch-2-styling-nextjs-applications)<br>
+[Ch-3: Routing & Navigation](https://github.com/subrotoice/next-basic?tab=readme-ov-file#ch-3-routing--navigation)<br>
+[Ch-4: Building API's](https://github.com/subrotoice/next-basic?tab=readme-ov-file#ch-4-building-apis-create-api-endpoint-and-validate-with-zod-introduction-to-full-stack)<br>
+[Ch-5: Database Integration ( Prisma )](https://github.com/subrotoice/next-basic?tab=readme-ov-file#ch-5-database-integration--prisma-)<br>
+[Ch-6: Uploading Files](https://github.com/subrotoice/next-basic?tab=readme-ov-file#ch-6-uploading-files)<br>
+[Ch-7: Authentication](https://github.com/subrotoice/next-basic?tab=readme-ov-file#ch-7-authentication)<br>
+[Ch-8: Sending Emails](https://github.com/subrotoice/next-basic?tab=readme-ov-file#ch-8-sending-emails)<br>
+[Ch-9: Optimization](https://github.com/subrotoice/next-basic?tab=readme-ov-file#ch-9-optimization)<br>
+[Ch-10: Deployment: Fix build errors](https://github.com/subrotoice/next-basic?tab=readme-ov-file#ch-10-deployment:-Fix-build-errors)<br>
+
 ## Ch-1: Next JS Basic
 
 ### Installation
@@ -12,8 +25,8 @@ npx create-next-app
 
 ### Client and Server component
 
-- Client component some issues: Large bundles, No SEO, Less Secure, Extra roundtrip to server
-- Use as much as server component (default), If you need to handel click or like this event then only that part make client,
+- Issues client component: Large bundles, No SEO, Less Secure, Extra roundtrip to server to fetch data
+- Use as much as server component (default), If you need to handel click or like this event then only that part will be 'use client',
 - Suppose Product Cart whole component need to make 'use client' we just make AddToCart as client component.
 - Only page.tsx is accessable so you can not keep all coding in page. You can create other component and import that in page.tsx
 
@@ -75,7 +88,7 @@ const UserPage = async () => {
 
 ### - Caching
 
-- Next has built in data cache based on File System(Server er file e rakhe)
+- Next has built in data cache based on File System(keep file in the server)
 - Data could be fetch: Memory(Fast), File System, Network(Slow)
 - Caching only done with fetch(), not axios
 
@@ -85,6 +98,7 @@ const UserPage = async () => {
 const res = await fetch("https://jsonplaceholder.typicode.com/users", {
   cache: "no-store",
 });
+
 // Fetch fresh data every 10 sec
 const res = await fetch("https://jsonplaceholder.typicode.com/users", {
   next: { revalidate: 10 },
@@ -98,7 +112,7 @@ const res = await fetch("https://jsonplaceholder.typicode.com/users", {
 - [Static and Dynamic](https://prnt.sc/Ach5QLHAr_uE)
 
 ```jsx
-// user if cache on then new Date().toLocaleTimeString() give same time stamp so make this file at build time. When cache is 'no-store' then change over time so it is Static server component
+// Static: user if cache on then new Date().toLocaleTimeString() give same time stamp so make this file at build time. When cache is 'no-store' then change over time so it is Static server component
 import React from "react";
 interface User {
   id: number;
@@ -122,7 +136,7 @@ const UserPage = async () => {
   );
 };
 
-// It will become dynamic component
+// Dynamic: It will become dynamic component
 const res = await fetch("https://jsonplaceholder.typicode.com/users", {
   cache: "no-store",
 });
@@ -137,8 +151,7 @@ const res = await fetch("https://jsonplaceholder.typicode.com/users", {
 
 ### - Global styles
 
-- Styles to apply to all pages. h1, p,
-- Can not use .user-list
+- Styles to apply to all pages. h1, p
 
 ### - CSS Modules
 
@@ -182,7 +195,7 @@ module.exports = {
 // AddtoCart.tsx
 <button className="btn btn-primary">Primary</button>
 
-// users/page.tabs-tsx
+// users/page.tsx
 import React from "react";
 
 interface User {
@@ -320,6 +333,7 @@ const UserPhoto = ({ params: { id, photoId } }: Props) => {
 
 - products/[...slug] -> not assessable if not slug prouvided in url like domain.com/products
 - products/[[...slug]] -> then it will acessable domain.com/products (no slug here)
+- Catch as an array.
 
 ```jsx
 import React from "react";
@@ -368,7 +382,7 @@ const ProductPage = ({
 https://www.npmjs.com/package/fast-sort
 
 ```jsx
-// user/page.tsx
+// users/page.tsx
 import React from "react";
 import UserTable from "./UserTable";
 
@@ -499,7 +513,7 @@ export default function RootLayout({
 
 - Only download content of the user page, Not any other files, font, css etc
 - Pre-fetches links that are in the viewport
-- Caches payload of pages on the client cache. It exist for one session and clear when a full page reload.
+- Caches payload of pages on the client cache. It exist for one session and clear when a full page reload.<br>
   **Build app and test**
 
 ```bash
@@ -509,7 +523,9 @@ npm start // Start builded project from dist folder
 
 ### - Programmatic navigation (Wihtout Link tag like button click we have to pass link to go other pages)
 
-- import { useRouter } from "next/navigation", const router = useRouter(), router.push("/users")
+1. import { useRouter } from "next/navigation";
+2. const router = useRouter();
+3. router.push("/users")
 
 ```jsx
 // users/new/page.tsx
@@ -532,7 +548,7 @@ const NewUser = () => {
 };
 ```
 
-### - Showing Loading Uis (loading.tsx)
+### - Showing Loading UI's (loading.tsx)
 
 - Using React Suspense. [React Suspense](https://prnt.sc/bpLDXyZZN-do)
 - Using loading.tsx
@@ -543,29 +559,17 @@ const NewUser = () => {
   <UserTable sortOrder={sortOrder} />
 </Suspense>;
 
-// Next: root loading.tsx (Show loading if transfer from one page to another)
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode,
-}) {
-  return (
-    <html lang="en" data-theme="winter">
-      <body className={inter.className}>
-        <NavBar />
-        <main className="p-5">
-          <Suspense fallback={}>{children}</Suspense>
-        </main>
-      </body>
-    </html>
-  );
-}
+// Next: app/loading.tsx (Show loading if transfer from one page to another)
 
 // loading.tsx on root or any folder
 // loading.tsx (use daisy ui)
+import React from "react";
+
 const Loading = () => {
   return <span className="loading loading-spinner loading-sm"></span>;
 };
+
+export default Loading;
 ```
 
 ### - Handiling Not Found Errors ( not-found.tsx )
@@ -628,7 +632,7 @@ const ErrorPage = ({ error, reset }: Props) => {
 };
 ```
 
-## CH-4: Building API's (Create API endpoint and Validate with Zod) Introduction to full stack
+## Ch-4: Building API's (Create API endpoint and Validate request body wich Zod) <br>Introduction to full stack
 
 ### - Getting a collection of Objects
 
@@ -636,6 +640,7 @@ const ErrorPage = ({ error, reset }: Props) => {
 - Create route.tsx in this folder. In a folder we can create either route.tsx or page.tsx but not both.
 - To show someting as markup we use page.tsx, to handel http request we should use route.tsx
 - In route.tsx we can use one or more route handeler. Is a function that handel a http request. ie. GET, POST, PUT, DELETE
+- [Xod Example](https://chat.openai.com/share/bd11ca30-59ef-439c-896d-3fa412eeb770)
 
 ```jsx
 // GET - NextRequest, NextResponse is two key
@@ -681,7 +686,7 @@ interface Props {
   params: { id: number };
 }
 
-// GET all
+// GET/id:1
 export function GET(request: NextRequest, { params: { id } }: Props) {
   if (id > 10) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -856,7 +861,7 @@ npx prisma
 Set up prisma. https://prnt.sc/r_gkmq2vlYmX
 
 ```bash
-npm prisma init
+npx prisma init
 ```
 
 .env file [Connection String Format](https://prnt.sc/Z1H-zDfYb5b1) For MySql Database
@@ -1206,7 +1211,7 @@ const UploadPage = () => {
 NB: onUpload is depricated, onSuccess same as onUpload: truggered after upload
 Step6: Customized upload widget [Click](https://demo.cloudinary.com/uw)
 
-## Ch-6: Authentication
+## Ch-7: Authentication
 
 - Setting up Next Auth
 - Google Provider
@@ -1425,7 +1430,7 @@ export const config = {
 
 ### - Database Adapters: Store in DB
 
-- When someone sing in with new google account then store in DB
+- When someone sing in with new google account then store user info in DB
 
 ```bash
 npm i @next-auth/prisma-adapter
@@ -1649,7 +1654,7 @@ npm run preview-email
 
 ```jsx
 // emails/WelcomeTemplate.tsx
-// System 1: Inline Css (Pass an object)
+// System 1: Inline CSS (Pass an object)
 <Body style={{ background: "#101010" }}>
   <Container>
     <Text>Hello {name}</Text>
@@ -1658,7 +1663,6 @@ npm run preview-email
 </Body>;
 
 // System 2: Style object; Outside the markup, CSSProperties one for intellesense
-
 const WelcomeTemplate = ({ name }: { name: string }) => {
   return (
     <Html>
@@ -1690,7 +1694,7 @@ import {
   Html,
   Body,
   Container,
-  Tailwind,
+  Tailwind, // added
   Text,
   Link,
   Preview,
@@ -1740,7 +1744,7 @@ export async function POST(request: NextRequest) {
 
   const data = await resend.emails.send({
     from: "onboarding@resend.dev",
-    to: body.email,
+    to: body.email, // in testing you can send own email
     subject: "Hello World 34" + body.name,
     react: WelcomeTemplate({ name: body.name }),
   });
@@ -1751,93 +1755,456 @@ export async function POST(request: NextRequest) {
 }
 ```
 
-### -
+## Ch-9: Optimization
+
+- Optimizing images
+- Using third-party JS libraries
+- Using custom fonts
+- SEO
+- Lazy loading
+
+### - Optimizing images [Next Doc](https://nextjs.org/docs/pages/api-reference/components/image)
+
+< Image Props >: A lot to know about nextjs Image tag. Very powerful
+
+Props: Required: (src, width, height, alt), quality, loading = 'lazy' priority={false}
+
+- loading = 'lazy', defer loading the image until it reaches a calculated distance from the viewport.
+- priority={true}, the image will be considered high priority and preload. Lazy loading is automatically disabled for images using priority.
+- Fill: the parent element, which is useful when the width and height are unknown. Parent must assign position: "relative", position: "fixed", or position: "absolute" style.
+- Width and Height are Required, except for statically imported images or images with the 'fill' property.
+- Size: Similar to a media query, that provides information about how wide the image will be at different breakpoints. The value of sizes will greatly affect performance for images using fill or which are styled to have a responsive size. Reduce image resulation accoudingly. <br>
+  sizes="5vw" ie. Media Resulation: 1000px, resize to 50px width and auto hight, Image will be 4/5kb. All this happend under the hood<br>
+  sizes="(max-width: 480px) 100vw, (max-widht: 768px) 50vw, 33vw" // Load depending on the device. It use srcset<br>
+- placeholder="blur": only for local images. make image blur before loading big images
+- srcset: Load image depending on device. [Click](https://www.w3schools.com/tags/att_source_srcset.asp) Autometic in Nextjs
 
 ```jsx
+// Local Images: in public folder
+// /app/opt-images/page.tsx
+import Image from "next/image";
+import fieldImg from "@/public/field.jpg";
 
+export default async function Home() {
+  return (
+    <main>
+      <h1>Hello World From opt-img</h1>
+      <Image src={fieldImg} width={500} height={500} alt="Field Image" />
+    </main>
+  );
+}
+
+// Remote Images: (Need to add hostname from where remote image will be load)
+// next.config.js (https://nextjs.org/docs/pages/api-reference/components/image#remotepatterns)
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "img.youtube.com",
+      },
+    ],
+  },
+};
+
+module.exports = nextConfig;
+
+// /app/opt-images/page.tsx
+<Image
+  src="https://img.youtube.com/vi/27YP6n6pDh0/maxresdefault.jpg"
+  alt="YouTube Thumb"
+  fill
+  className="object-cover"
+  // Loaded image sizes (resulation), Here in desptop image that will be load 1/3 of Full Relulation, Because here we can show 3 images on a row
+  sizes="(max-width: 480px) 100vw, (max-widht: 768px) 50vw, 33vw"
+/>;
 ```
 
-### -
+### - Using third-party JS libraries < Script src> ( "strategy" to when certain script will be load)
+
+< Script src=" " strategy='afterInteractive(default)|beforeInteractive|lazyOnload|worker' /> <br>
+4 Strategies: <br>
+
+1. beforeInteractive: Load the script before any Next.js code and before any page hydration occurs.<br >
+2. afterInteractive: (default) Load the script early but after some hydration on the page occurs.<br >
+3. lazyOnload: Load the script later during browser idle time.<br >
+4. worker: (experimental) Load the script in a web worker.
 
 ```jsx
+// layout.tsx
+import GoogleAnalyticsScript from "./GoogleAnalyticsScript";
 
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode,
+}) {
+  return (
+    <html lang="en" data-theme="winter">
+      <GoogleAnalyticsScript />
+      <body className={inter.className}>
+        <AuthProvider>
+          <NavBar />
+          <main className="p-5">{children}</main>
+        </AuthProvider>
+      </body>
+    </html>
+  );
+}
+
+// app/GoogleAnalyticsScript.tsx
+import Script from "next/script";
+import React from "react";
+
+const GoogleAnalyticsScript = () => {
+  return (
+    <>
+      <Script
+        async
+        src="https://www.googletagmanager.com/gtag/js?id=G-E720JHXSJ2"
+      />
+      <Script id="google-analytics">
+        {`window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-E720JHXSJ1');`}
+      </Script>
+    </>
+  );
+};
 ```
 
-### -
+### - Using Fonts
+
+**Google font**
 
 ```jsx
+// app/layout.tsx
+import { Inter, Roboto } from "next/font/google";
 
+const inter = Inter({ subsets: ["latin"] });
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+});
+
+return (
+  <html lang="en" data-theme="winter">
+    <GoogleAnalyticsScript />
+    <body className={roboto.className}>
+      <AuthProvider>
+        <NavBar />
+        <main className="p-5">{children}</main>
+      </AuthProvider>
+    </body>
+  </html>
+);
 ```
 
-### -
+**Downloaded Font (Local Font)**
 
 ```jsx
+// app/layout.tsx
+import localFont from "next/font/local";
 
+const pixelifySans = localFont({
+  src: "../public/fonts/PixelifySans-Regular.ttf",
+});
+
+return (
+  <html lang="en" data-theme="winter">
+    <GoogleAnalyticsScript />
+    <body className={pixelifySans.className}>
+      <AuthProvider>
+        <NavBar />
+        <main>{children}</main>
+      </AuthProvider>
+    </body>
+  </html>
+);
 ```
 
-### -
+**Custom variable fonts (First you have to keep it in parent tag ie. body then you can use it in child tag)**
 
 ```jsx
+// app/layout.tsx
+import { Inter, Roboto, Bungee } from "next/font/google";
+import localFont from "next/font/local";
 
+const bungee = Bungee({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-bungee", // Can make any font variable
+});
+
+const pixelifySans = localFont({
+  src: "../public/fonts/PixelifySans-Regular.ttf",
+  variable: "--font-pixeliFy",
+});
+
+return (
+  <html lang="en" data-theme="winter">
+    <GoogleAnalyticsScript />
+    <body className={`${pixelifySans.variable} ${bungee.variable}`}>
+      <AuthProvider>
+        <NavBar />
+        <main>{children}</main>
+      </AuthProvider>
+    </body>
+  </html>
+);
+
+// globals.css
+.pixeify {
+  font-family: var(--font-pixeliFy);
+}
+
+.bungee {
+  font-family: var(--font-bungee);
+}
+
+// app/page.tsx
+return (
+  <main>
+    <h1 className="pixeify">
+      Hello pixeify {session && <>{session.user?.name}</>}
+    </h1>
+    <h1 className="bungee">bungee Font</h1>
+    <Link href="users">User</Link>
+    <ProductCard />
+  </main>
+);
 ```
 
-### -
+**Register with tailwind CSS (need not to keep css code in globals.css, but both system is greate)**
 
 ```jsx
+// app/layout.tsx
+import { Inter, Roboto, Bungee, Libre_Baskerville } from "next/font/google";
 
+const libreBaskerville = Libre_Baskerville({
+  subsets: ["latin"],
+  weight: ["400"],
+});
+
+return (
+  <html lang="en" data-theme="winter">
+    <GoogleAnalyticsScript />
+    <body
+     // always libreBaskerville, pixeliFy, bungee when needed for a tag
+      className={`${pixeliFy.variable} ${bungee.variable} ${libreBaskerville.className}`}
+    >
+      <AuthProvider>
+        <NavBar />
+        <main>{children}</main>
+      </AuthProvider>
+    </body>
+  </html>
+);
+
+// taildind.config.ts (You will get in intellisense, Presh Ctrl+Space)
+theme: {
+  extend: {
+    fontFamily: {
+      bungee: ["var(--font-bungee)"],
+      pixeify: ["var(--font-pixeliFy)"],
+    },
+    ....
+  },
+},
+
+// app/page.tsx
+return (
+  <main>
+    <h1 className="font-pixeify">
+      Hello pixeify {session && <>{session.user?.name}</>}
+    </h1>
+    <h1 className="font-bungee">Hello bungee Font</h1>
+    <Link href="users">User</Link>
+    <ProductCard />
+  </main>
+);
 ```
 
-### -
+### - SEO
 
 ```jsx
+// app/layout.tsx
+export const metadata: Metadata = {
+  title: "Create Next App Subroto",
+  description: "Generated by create next app 1",
+};
 
+// app/page.tsx (replace layout.tsx metadata title and description)
+import { Metadata } from "next";
+
+export default async function Home() {
+  const session = await getServerSession(authOptions);
+
+  return <main></main>;
+}
+
+// Replace layout.tsx
+export const metadata: Metadata = {
+  title: "Home Page",
+  description: "Home Page Description",
+};
+
+// Dynamic metadata generate
+export async function generateMetadata(): Promise<Metadata> {
+  const product = await fetch(""); // fetch data from db or other api
+
+  return {
+    title: "Title generateMetadata",
+    description: "Description generateMetadata",
+  };
+}
 ```
 
-### -
+### - Lazy Loading
+
+_1. Lazy Load Component_
 
 ```jsx
+// lazy-load/page.tsx (HeavyComponent will not be load in bundel after click it will load)
+// Dynamically load a component, Use only for large huge component
+"use client";
+import React, { useState } from "react";
+// import HeavyComponent from "../components/HeavyComponent";
+import dynamic from "next/dynamic";
+const HeavyComponent = dynamic(() => import("../components/HeavyComponent")); // basic version
 
+const HeavyComponent = dynamic(() => import("../components/HeavyComponent"), {
+  ssr: false, // to protect pre-rendering
+  loading: () => <p>Loading...</p>,
+});
+
+const LazyPage = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  return (
+    <div>
+      Lazy Page
+      <button onClick={() => setIsVisible(true)}>Show</button>
+      {isVisible && <HeavyComponent />}
+    </div>
+  );
+};
 ```
 
-### -
+_2. Lazy Load JavaScript Library_ <br>
+Install lodash(Sorting and Filtering array) for testing
 
-```jsx
-
+```bash
+npm i lodash
+npm install -D @types/lodash or, npm install --save-dev @types/lodash
 ```
 
-### -
+- Import js library when needed
 
 ```jsx
+// Scenario 1: import _ from "lodash"; Added to bundel
+"use client";
+import React from "react";
+import _ from "lodash";
 
+const LazyPage = () => {
+  return (
+    <div>
+      <h1>Lazy Page</h1>
+      <button
+        onClick={() => {
+          const users = [{ name: "c" }, { name: "b" }, { name: "a" }];
+          const sorted = _.orderBy(users, ["name"]);
+          console.log(sorted);
+        }}
+      >
+        Sort
+      </button>
+    </div>
+  );
+};
+
+// Scenario 2: const _ = (await import("lodash")).default; Same work
+// Not added to bundel
+<button
+  onClick={async () => {
+    const _ = (await import("lodash")).default;
+
+    const users = [{ name: "c" }, { name: "b" }, { name: "a" }];
+    const sorted = _.orderBy(users, ["name"]);
+    console.log(sorted);
+  }}
+>
+  Sort
+</button>;
 ```
 
-### -
+## Ch-10: Deployment: Fix build errors
+
+### - Fix build errors
+
+- From a route file we can export only GET, POST, PUT, DELETE
+- Some other error found: db user id type string but we purse as int
 
 ```jsx
+// route.ts  (take authOptions to a separate file)
+import NextAuth from "next-auth";
+import { authOptions } from "../authOptions";
 
-```
+const handler = NextAuth(authOptions);
 
-### -
+export { handler as GET, handler as POST };
 
-```jsx
+// /api/auth/route.ts
+import prisma from "@/prisma/client";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import bcrypt from "bcrypt";
 
-```
+export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
+  providers: [
+    CredentialsProvider({
+      // The name to display on the sign in form (e.g. "Sign in with...")
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email", placeholder: "Email" },
+        password: {
+          label: "Password",
+          type: "password",
+          placeholder: "Password",
+        },
+      },
+      async authorize(credentials, req) {
+        if (!credentials?.email || !credentials.password) return null;
 
-### -
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        });
 
-```jsx
+        if (!user) return null;
 
-```
+        const passwordsMatch = await bcrypt.compare(
+          credentials.password,
+          user.hashedPassword!
+        );
 
-### -
-
-```jsx
-
-```
-
-### -
-
-```jsx
+        return passwordsMatch ? user : null;
+      },
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+  ],
+  session: {
+    strategy: "jwt",
+  },
+};
 
 ```
 

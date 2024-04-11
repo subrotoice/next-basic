@@ -12,3 +12,11 @@ body {
     @apply font-extrabold text-2xl mb-3;
   }
 }
+
+.pixeify {
+  font-family: var(--font-pixeliFy);
+}
+
+.bungee {
+  font-family: var(--font-bungee);
+}
