@@ -2210,7 +2210,8 @@ export const authOptions: NextAuthOptions = {
 
 ### - Troubleshooting Deployment Errors
 
-- When we deploy coming error is very common.
+- **When we deploy coming error is very common**
+- All environment variable need to paste. Production and local .env variable should be different for security issue
 - Click change and overwrite build [See](https://prnt.sc/TBXJOR4urpzm)
 - Deploy again
 

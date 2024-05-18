@@ -10,5 +10,6 @@ export default middleware;
 // }
 
 export const config = {
-  matcher: ["/users/:id*"],
+  // matcher: ["/users/:id*"],
+  matcher: ["/dashboard"],
 };

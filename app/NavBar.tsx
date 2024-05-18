@@ -14,6 +14,9 @@ const NavBar = () => {
       <Link href="/users" className="mr-5">
         Users
       </Link>
+      <Link href="/dashboard" className="mr-5">
+        Dashboard
+      </Link>
       {status === "authenticated" && (
         <>
           {session.user?.name}
