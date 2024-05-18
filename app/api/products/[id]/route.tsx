@@ -29,7 +29,7 @@ export async function PUT(request: NextRequest, { params: { id } }: Props) {
     return NextResponse.json(validation.error.errors, { status: 400 });
   }
 
-  const product = await prisma.user.findUnique({
+  const product = await prisma.product.findUnique({
     where: { id: parseInt(id) },
   });
 

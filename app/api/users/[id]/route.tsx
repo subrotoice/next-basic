@@ -9,7 +9,7 @@ interface Props {
 // GET - ID
 export async function GET(request: NextRequest, { params: { id } }: Props) {
   const user = await prisma.user.findUnique({
-    where: { id: parseInt(id) },
+    where: { id: id },
   });
 
   if (!user)
@@ -29,7 +29,7 @@ export async function PUT(request: NextRequest, { params: { id } }: Props) {
   }
 
   const user = await prisma.user.findUnique({
-    where: { id: parseInt(id) },
+    where: { id: id },
   });
 
   // S2: Fetch the user with the given id,  If doesn't exist, return 404
@@ -54,7 +54,7 @@ export async function DELETE(request: NextRequest, { params: { id } }: Props) {
   const body = await request.json();
 
   const user = await prisma.user.findUnique({
-    where: { id: parseInt(id) },
+    where: { id: id },
   });
 
   if (!user) {
