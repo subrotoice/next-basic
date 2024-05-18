@@ -2208,11 +2208,17 @@ export const authOptions: NextAuthOptions = {
 
 ```
 
-### -
+### - Troubleshooting Deployment Errors
 
-```jsx
+- When we deploy coming error is very common.
+- Click change and overwrite build [See](https://prnt.sc/TBXJOR4urpzm)
+- Deploy again
 
+```bash
+npx prisma generate && next build
 ```
+
+- Remove app/api/sent-email folder and commit and push. Because we have to add production email environment for live
 
 ### -
 
