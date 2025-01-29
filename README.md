@@ -850,6 +850,7 @@ export function DELETE(
 
 ```bash
 npm i prisma
+npm install @prisma/client
 ```
 
 To get prisma command "npx"
@@ -857,7 +858,8 @@ To get prisma command "npx"
 ```bash
 npx prisma
 ```
-
+Google: prisma nextjs prismaclient<br>
+https://www.prisma.io/docs/orm/more/help-and-troubleshooting/nextjs-help <br>
 Set up prisma. https://prnt.sc/r_gkmq2vlYmX
 
 ```bash
@@ -937,6 +939,18 @@ const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
 export default prisma;
 
 if (process.env.NODE_ENV !== "production") globalThis.prismaGlobal = prisma;
+```
+prisma/client.ts
+```jsx
+// Updated | https://www.prisma.io/docs/orm/more/help-and-troubleshooting/nextjs-help
+import { PrismaClient } from "@prisma/client";
+
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+
+export const prisma =
+  globalForPrisma.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 ```
 
 ### - Getting Data (route.tsx | Same code only fetch)
@@ -1433,16 +1447,23 @@ export const config = {
 - When someone sing in with new google account then store user info in DB
 
 ```bash
+npm i prisma
+npm i @prisma/client
+
+# Google: prisma nextjs prismaclient
+# https://www.prisma.io/docs/orm/more/help-and-troubleshooting/nextjs-help
+npx prisma migrate dev
+```
+```bash
 npm i @next-auth/prisma-adapter
 ```
 
 [Prisma Adapter](https://authjs.dev/reference/adapter/prisma) Copy DB Schema<br>
-import { PrismaAdapter } from "@next-auth/prisma-adapter";<br>
-adapter: PrismaAdapter(prisma), // Prisma Client <br>
-session: {
-strategy: "jwt",
-},
-
+Just add this two line. All google login user will store in db
+```jsx
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+adapter: PrismaAdapter(prisma),
+```
 ```jsx
 // /api/auth/[...nextauth]/route.ts
 import prisma from "@/prisma/client";
@@ -1467,7 +1488,6 @@ export const authOptions: NextAuthOptions = {
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
-
 ```
 
 NB: If issue come with "Sing in with different account" > provider String @db.VarChar(100). VarCar Max Lenght 100
@@ -2221,7 +2241,9 @@ npx prisma generate && next build
 
 - Remove app/api/sent-email folder and commit and push. Because we have to add production email environment for live
 
-### -
+### - Database as neon.tech login with github
+
+https://www.youtube.com/watch?v=hnLsVayC-OA
 
 ```jsx
 
