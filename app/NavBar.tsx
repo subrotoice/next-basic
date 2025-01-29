@@ -5,6 +5,7 @@ import React from "react";
 
 const NavBar = () => {
   const { status, data: session } = useSession();
+  console.log(session);
 
   return (
     <div className="flex bg-slate-200 p-5">
